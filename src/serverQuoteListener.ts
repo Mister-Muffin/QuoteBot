@@ -20,11 +20,15 @@ export function listenServer(client: Discord.Client) {
                 break;
             }
             case '/': {
+                
+                
+                
                 var body = ''
                 request.on('data', function (data) {
                     body += data
                 })
                 request.on('end', function () {
+                    if("POST" == method) {
                     body = decodeURIComponent(body)
                     body = body.split("%20").join(" ")
                     console.log('Body: ' + body)
@@ -33,17 +37,21 @@ export function listenServer(client: Discord.Client) {
                     console.log(`server: ${bodyJSON["server"]}`)
                     console.log(`user: ${bodyJSON["user"]}`)
                     response.writeHead(200, { 'Content-Type': 'text/plain' })
-                    response.end('post received')
-
-
+                    
 
                     client.channels.fetch(settings[bodyJSON["server"]]["QUOTE_CHANNEL_ID"] as string).then(quoteChannel => {
                         createQuote(quoteChannel as Discord.TextChannel, bodyJSON["quote"].toString(), bodyJSON["user"], bodyJSON["server"])
                     })
+                    } else if ("GET" == method) {
+                    response.writeHead(200, { 'Content-Type': 'text/plain' })
+                    } else {
+                    response.writeHead(400, { 'Content-Type': 'text/plain' })
+                    }
+                    
+                    response.end('post received')
 
                 })
-
-                return
+                
             }
             case '/delete': {
                 console.log("delete")
